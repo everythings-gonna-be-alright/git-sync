@@ -196,6 +196,7 @@ const (
 type submodulesMode string
 
 const (
+    submodulesRecursiveRemote submodulesMode = "remote"
 	submodulesRecursive submodulesMode = "recursive"
 	submodulesShallow   submodulesMode = "shallow"
 	submodulesOff       submodulesMode = "off"
@@ -366,9 +367,9 @@ func main() {
 	}
 
 	switch submodulesMode(*flSubmodules) {
-	case submodulesRecursive, submodulesShallow, submodulesOff:
+	case submodulesRecursiveRemote, submodulesRecursive, submodulesShallow, submodulesOff:
 	default:
-		handleConfigError(log, true, "ERROR: --submodules must be one of %q, %q, or %q", submodulesRecursive, submodulesShallow, submodulesOff)
+		handleConfigError(log, true, "ERROR: --submodules must be one of %q, %q, or %q", submodulesRecursiveRemote, submodulesRecursive, submodulesShallow, submodulesOff)
 	}
 
 	switch *flGitGC {
@@ -1263,6 +1264,9 @@ func (git *repoSync) AddWorktreeAndSwap(ctx context.Context, hash string) (bool,
 		submodulesArgs := []string{"submodule", "update", "--init"}
 		if git.submodules == submodulesRecursive {
 			submodulesArgs = append(submodulesArgs, "--recursive")
+		}
+		if git.submodules == submodulesRecursiveRemote {
+			submodulesArgs = append(submodulesArgs, "--recursive --remote")
 		}
 		if git.depth != 0 {
 			submodulesArgs = append(submodulesArgs, "--depth", strconv.Itoa(git.depth))
